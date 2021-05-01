@@ -3,7 +3,7 @@ import ReactDOM from "react-dom";
 import "./index.css";
 import App from "./App";
 import reportWebVitals from "./reportWebVitals";
-import { parseNote, Notes, Mode, Modes, Chord, range } from "./Music/Notes";
+import { parseNote, Notes, Mode, Modes, Chord, range, ExtensionState, Extensions } from "./Music/Notes";
 import {
   Box,
   Grid,
@@ -27,16 +27,9 @@ const AccidentalLabels = {
   right: { title: "♯", value: "sharp" },
 };
 
-enum ExtensionState {
-  Off,
-  Normal,
-  Flat,
-  Sharp,
-}
 
-interface Extensions {
-  seventh: ExtensionState;
-}
+
+
 
 function ChordPiece(props: {
   chord: Chord;
@@ -45,10 +38,6 @@ function ChordPiece(props: {
 }): React.ReactElement {
   const [mode, setMode] = useState(Mode.Major);
   const [note, setNote] = useState(parseNote("C4"));
-
-  const chord = new Chord(note, mode);
-
-  React.useEffect(() => props.onChordChange(chord), [mode, note]);
 
   function Extension(props: {
     number: number;
@@ -140,6 +129,12 @@ function ChordPiece(props: {
   const [seventh, setSeventh] = useState(ExtensionState.Off);
   const [ninth, setNinth] = useState(ExtensionState.Off);
   const [eleventh, setEleventh] = useState(ExtensionState.Off);
+
+
+  React.useEffect(() => {
+    const chord = new Chord(note, mode, {seventh, ninth, eleventh});
+    props.onChordChange(chord);
+  }, [mode, note, seventh, ninth, eleventh]);
 
   return (
     <Box bgcolor={props.index % 2 ? "primary.light" : "primary.dark"} pt={1}>
