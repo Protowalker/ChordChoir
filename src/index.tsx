@@ -1,16 +1,17 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, FocusEvent } from "react";
 import ReactDOM from "react-dom";
 import "./index.css";
-import App from "./App";
 import reportWebVitals from "./reportWebVitals";
 import { parseNote, Notes, Mode, Modes, Chord, range, ExtensionState, Extensions } from "./Music/Notes";
 import {
   Box,
   Grid,
+  Paper,
   Checkbox,
   FormControlLabel,
   TextField,
   Button,
+  CssBaseline,
 } from "@material-ui/core";
 import * as Tone from "tone";
 import { Clock } from "tone";
@@ -21,21 +22,13 @@ import { spacing } from "@material-ui/system";
 // or send to an analytics endpoint. Learn more: https://bit.ly/CRA-vitals
 reportWebVitals();
 
-const AccidentalLabels = {
-  left: { title: "♭", value: "flat" },
-  center: { title: "♮", value: "normal" },
-  right: { title: "♯", value: "sharp" },
-};
-
-
-
-
 
 function ChordPiece(props: {
   chord: Chord;
   onChordChange: (chord: Chord) => void;
   index: number;
 }): React.ReactElement {
+
   const [mode, setMode] = useState(Mode.Major);
   const [note, setNote] = useState(parseNote("C4"));
 
@@ -67,7 +60,7 @@ function ChordPiece(props: {
       [firstRef.current, secondRef.current, thirdRef.current][
         targetIndex
       ].checked = true;
- 
+
 
       let extensionState = [ExtensionState.Flat, ExtensionState.Normal, ExtensionState.Sharp][targetIndex];
 
@@ -89,7 +82,7 @@ function ChordPiece(props: {
             <Checkbox
               color="secondary"
               inputRef={firstRef}
-              checked={props.extensionState == ExtensionState.Flat }
+              checked={props.extensionState == ExtensionState.Flat}
               onChange={(ev) => updateExtension(0, ev.target.checked)}
             />
           }
@@ -132,42 +125,44 @@ function ChordPiece(props: {
 
 
   React.useEffect(() => {
-    const chord = new Chord(note, mode, {seventh, ninth, eleventh});
+    const chord = new Chord(note, mode, { seventh, ninth, eleventh });
     props.onChordChange(chord);
   }, [mode, note, seventh, ninth, eleventh]);
 
   return (
-    <Box bgcolor={props.index % 2 ? "primary.light" : "primary.dark"} pt={1}>
-      <Grid
-        container
-        item
-        direction="column"
-        alignItems="stretch"
-        justify="space-around"
-        spacing={2}
-      >
-        <Notes startingNote={parseNote("C4")} onChange={setNote}></Notes>
-        <Grid container item justify="center">
-          <Modes onChange={setMode} currentMode={mode}></Modes>
+    <Box pt={1}>
+      <Paper>
+        <Grid
+          container
+          item
+          direction="column"
+          alignItems="stretch"
+          justify="space-around"
+          spacing={2}
+        >
+          <Notes startingNote={parseNote("C4")} onChange={setNote}></Notes>
+          <Grid container item justify="center">
+            <Modes onChange={setMode} currentMode={mode}></Modes>
+          </Grid>
+          <Grid container item direction="column" alignItems="center">
+            <Extension
+              number={7}
+              extensionState={seventh}
+              updateExtension={setSeventh}
+            />
+            <Extension
+              number={9}
+              extensionState={ninth}
+              updateExtension={setNinth}
+            />
+            <Extension
+              number={11}
+              extensionState={eleventh}
+              updateExtension={setEleventh}
+            />
+          </Grid>
         </Grid>
-        <Grid container item direction="column" alignItems="center">
-          <Extension
-            number={7}
-            extensionState={seventh}
-            updateExtension={setSeventh}
-          />
-          <Extension
-            number={9}
-            extensionState={ninth}
-            updateExtension={setNinth}
-          />
-          <Extension
-            number={11}
-            extensionState={eleventh}
-            updateExtension={setEleventh}
-          />
-        </Grid>
-      </Grid>
+      </Paper>
     </Box>
   );
 }
@@ -177,16 +172,15 @@ Tone.Transport.bpm.value = 120;
 
 function Home(): React.ReactElement {
   const [chordCount, setChordCount] = useState(4);
-  const [temporaryChordCount, setTemporaryChordCount] = useState(chordCount);
 
+  const toneSeq = useRef<Tone.Sequence<number>>();
   const [chordSequence, setSequence] = useState<Chord[]>(
     Array(chordCount).fill(new Chord())
   );
 
-  function consolidateChordCount() {
-    let newChordCount = temporaryChordCount;
-    if (isNaN(temporaryChordCount)) {
-      setTemporaryChordCount(0);
+  function consolidateChordCount(ev: FocusEvent<HTMLInputElement>) {
+    let newChordCount = parseInt(ev.target.value);
+    if (isNaN(newChordCount)) {
       newChordCount = 0;
     }
 
@@ -206,15 +200,30 @@ function Home(): React.ReactElement {
     let newSequence = chordSequence.slice();
     newSequence[index] = entry;
     setSequence(newSequence);
+
+    if(toneSeq.current)
+      toneSeq.current.dispose();
+
+    const seq = new Tone.Sequence(
+      (time, chordIndex) => {
+        synth.triggerAttackRelease(
+          newSequence[chordIndex].getArray(),
+          "8n",
+          time
+        );
+        // subdivisions are given as subarrays
+      },
+      range(0, chordCount),
+      "4n"
+    ).start(0);
+    toneSeq.current = seq;
   }
 
   const [tempo, setTempo] = useState(120);
-  const [temporaryTempo, setTemporaryTempo] = useState(tempo);
-  function consolidateTempo() {
-    let newTempo = temporaryTempo;
-    if (isNaN(temporaryTempo)) {
+  function consolidateTempo(ev: FocusEvent<HTMLInputElement>) {
+    let newTempo = parseInt(ev.target.value);
+    if (isNaN(newTempo)) {
       newTempo = 120;
-      setTemporaryTempo(120);
     }
 
     setTempo(newTempo);
@@ -222,27 +231,26 @@ function Home(): React.ReactElement {
   }
 
   const [playing, setPlaying] = useState(false);
-  const [toneSeq, setToneSeq] = useState<Tone.Sequence<number>>(null as any);
   async function togglePlay() {
     if (playing === false) {
       await Tone.start();
       setPlaying(true);
-      const seq = new Tone.Sequence(
-        (time, chordIndex) => {
-          synth.triggerAttackRelease(
-            chordSequence[chordIndex].getArray(),
-            "8n",
-            time + 0.1
-          );
-          // subdivisions are given as subarrays
-        },
-        range(0, chordCount),
-        "4n"
-      ).start(0);
-      setToneSeq(seq);
+      // const seq = new Tone.Sequence(
+      //   (time, chordIndex) => {
+      //     synth.triggerAttackRelease(
+      //       chordSequence[chordIndex].getArray(),
+      //       "8n",
+      //       time + 0.1
+      //     );
+      //     // subdivisions are given as subarrays
+      //   },
+      //   range(0, chordCount),
+      //   "4n"
+      // ).start(0);
+      // toneSeq.current = seq;
       Tone.Transport.start("+0.1");
     } else {
-      toneSeq.stop();
+      toneSeq.current?.dispose();
       Tone.Transport.stop();
       setPlaying(false);
     }
@@ -250,24 +258,18 @@ function Home(): React.ReactElement {
 
   return (
     <Box>
-      <Button onClick={togglePlay}>
+      <Button variant="contained" onClick={togglePlay}>
         {playing === false ? "Start" : "Stop"}
       </Button>
       <TextField
         type="number"
-        value={temporaryChordCount}
-        onChange={(ev) =>
-          setTemporaryChordCount(parseInt(ev.target?.value as string))
-        }
+        defaultValue={4}
         onBlur={consolidateChordCount}
         label="Note Count"
       />
       <TextField
         type="number"
-        value={temporaryTempo}
-        onChange={(ev) =>
-          setTemporaryTempo(parseInt(ev.target.value as string))
-        }
+        defaultValue={120}
         onBlur={consolidateTempo}
         label="Tempo (BPM)"
       />
@@ -288,6 +290,7 @@ function Home(): React.ReactElement {
 {
   ReactDOM.render(
     <React.StrictMode>
+      <CssBaseline />
       <Home />
     </React.StrictMode>,
     document.getElementById("root")
