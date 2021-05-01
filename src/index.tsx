@@ -200,23 +200,8 @@ function Home(): React.ReactElement {
     let newSequence = chordSequence.slice();
     newSequence[index] = entry;
     setSequence(newSequence);
+    generateSequence(newSequence);
 
-    if(toneSeq.current)
-      toneSeq.current.dispose();
-
-    const seq = new Tone.Sequence(
-      (time, chordIndex) => {
-        synth.triggerAttackRelease(
-          newSequence[chordIndex].getArray(),
-          "8n",
-          time + 0.1
-        );
-        // subdivisions are given as subarrays
-      },
-      range(0, chordCount),
-      "4n"
-    ).start(0);
-    toneSeq.current = seq;
   }
 
   const [tempo, setTempo] = useState(120);
@@ -230,24 +215,32 @@ function Home(): React.ReactElement {
     Tone.Transport.bpm.value = newTempo;
   }
 
+  function generateSequence(sequence: Chord[]) {
+    if(toneSeq.current)
+      toneSeq.current.dispose();
+      
+    const seq = new Tone.Sequence(
+      (time, chordIndex) => {
+        synth.triggerAttackRelease(
+          sequence[chordIndex].getArray(),
+          "8n",
+          time + 0.1
+        );
+        // subdivisions are given as subarrays
+      },
+      range(0, chordCount),
+      "4n"
+    ).start(0);
+    toneSeq.current = seq;
+  
+  }
+
   const [playing, setPlaying] = useState(false);
   async function togglePlay() {
     if (playing === false) {
       await Tone.start();
       setPlaying(true);
-      // const seq = new Tone.Sequence(
-      //   (time, chordIndex) => {
-      //     synth.triggerAttackRelease(
-      //       chordSequence[chordIndex].getArray(),
-      //       "8n",
-      //       time + 0.1
-      //     );
-      //     // subdivisions are given as subarrays
-      //   },
-      //   range(0, chordCount),
-      //   "4n"
-      // ).start(0);
-      // toneSeq.current = seq;
+      generateSequence(chordSequence);
       Tone.Transport.start("+0.1");
     } else {
       toneSeq.current?.dispose();
