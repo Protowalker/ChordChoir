@@ -209,7 +209,7 @@ function Home(): React.ReactElement {
         synth.triggerAttackRelease(
           newSequence[chordIndex].getArray(),
           "8n",
-          time
+          time + 0.1
         );
         // subdivisions are given as subarrays
       },
