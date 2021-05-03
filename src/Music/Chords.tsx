@@ -1,6 +1,8 @@
 import React from 'react';
 import { useRef, useState } from 'react';
 import { Box, Paper, Grid, FormControlLabel, Checkbox } from '@material-ui/core';
+import { colors } from '@material-ui/core/';
+import { makeStyles } from '@material-ui/core/styles';
 import { Notes, Note, Modes, Mode, parseNote } from './Notes';
 
 export enum ExtensionState {
@@ -47,8 +49,7 @@ export class Chord {
     // Ninth = 14 half-steps
     // Eleventh = 17 half-steps
 
-    console.log(this.extensions);
-
+  
 
     function getExtensionOffset(extension: ExtensionState.Flat | ExtensionState.Normal | ExtensionState.Sharp): number {
       return [-1, 0, 1][[ExtensionState.Flat, ExtensionState.Normal, ExtensionState.Sharp].indexOf(extension)];
@@ -199,7 +200,11 @@ const ChordExtension = React.memo(function (props: {
   );
 });
 
-
+const useStyles = makeStyles({
+  active: {
+    
+    background: colors.blueGrey[100]
+}});
 
 export const ChordPiece = React.memo(function (props: {
   baseKey: Note;
@@ -225,10 +230,11 @@ export const ChordPiece = React.memo(function (props: {
     //eslint-disable-next-line react-hooks/exhaustive-deps
   }, [mode, note, seventh, ninth, eleventh, index]);
 
+  const classes = useStyles();
 
   return (
     <Box pt={1}>
-      <Paper>
+      <Paper className={props.active ? classes.active : ""}>
         <Grid
           container
           item
