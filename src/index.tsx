@@ -39,29 +39,34 @@ function Home(): React.ReactElement {
     setChordCount(newChordCount);
 
     if (chordSequence.length > newChordCount) {
+      generateSequence(chordSequence.slice(0, newChordCount));
       setSequence(chordSequence.slice(0, newChordCount));
     } else if (chordSequence.length < newChordCount) {
       let newSequence = chordSequence.slice();
       while (newSequence.length < newChordCount) newSequence.push(new Chord());
 
+      generateSequence(newSequence);
       setSequence(newSequence);
     }
   }, [chordSequence]);
 
+
+  const [activeChord, setActiveChord] = useState(-1);
   const generateSequence = useCallback(function(sequence: Chord[]) {
     if(toneSeq.current)
       toneSeq.current.dispose();
       
     const seq = new Tone.Sequence(
       (time, chordIndex) => {
+        setActiveChord(chordIndex);
         synth.triggerAttackRelease(
           sequence[chordIndex].getArray(),
           "8n",
-          time + 0.1
+          time
         );
         // subdivisions are given as subarrays
       },
-      range(0, chordCount),
+      range(0, sequence.length),
       "4n"
     ).start(0);
     toneSeq.current = seq;
@@ -99,6 +104,7 @@ function Home(): React.ReactElement {
       toneSeq.current?.dispose();
       Tone.Transport.stop();
       setPlaying(false);
+      setActiveChord(-1);
     }
   }
 
@@ -128,7 +134,7 @@ function Home(): React.ReactElement {
             chord={chord}
             index={index}
             onChordChange={updateChordSequence}
-            active={false}
+            active={activeChord === index}
           />
         ))}
       </Grid>
