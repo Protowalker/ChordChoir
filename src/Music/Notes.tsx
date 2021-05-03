@@ -142,7 +142,7 @@ export const Notes = React.memo(function(props: NotesProps): React.ReactElement 
   const noteRef = useRef<HTMLSelectElement>(null);
   const startingNumber = props.startingNote.getNumber();
 
-
+  
 
   return (
     <Grid container item justify="center">

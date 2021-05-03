@@ -2,7 +2,7 @@ import React, { useState, useCallback, useRef, FocusEvent } from "react";
 import ReactDOM from "react-dom";
 import "./index.css";
 import reportWebVitals from "./reportWebVitals";
-import {range} from "./Music/Notes";
+import {parseNote, range} from "./Music/Notes";
 import { ChordPiece, Chord, } from "./Music/Chords";
 import {
   Box,
@@ -103,6 +103,11 @@ function Home(): React.ReactElement {
   }
 
 
+  const pressEnter = useCallback((ev: React.KeyboardEvent, func: (ev: any) => void) => {
+    if(ev.key === "Enter")
+      func(ev as any);
+  }, []);
+
   return (
     <Box>
       <Button variant="contained" onClick={togglePlay}>
@@ -112,18 +117,21 @@ function Home(): React.ReactElement {
         type="number"
         defaultValue={4}
         onBlur={consolidateChordCount}
+        onKeyDown={(e) => pressEnter(e, consolidateChordCount)}
         label="Note Count"
         InputProps={{inputProps: {min:0, max:30}}}
       />
       <TextField
         type="number"
         defaultValue={120}
+        onKeyDown={(e) => pressEnter(e, consolidateTempo)}
         onBlur={consolidateTempo}
         label="Tempo (BPM)"
       />
       <Grid container>
         {chordSequence.map((chord: Chord, index: number) => (
           <ChordPiece
+            baseKey={parseNote("C4")}
             key={index}
             chord={chord}
             index={index}
