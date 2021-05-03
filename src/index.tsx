@@ -124,6 +124,7 @@ function Home(): React.ReactElement {
         defaultValue={4}
         onBlur={consolidateChordCount}
         onKeyDown={(e) => pressEnter(e, consolidateChordCount)}
+        onClick={(e) => consolidateChordCount(e as any)}
         label="Note Count"
         InputProps={{inputProps: {min:0, max:30}}}
       />
@@ -132,6 +133,8 @@ function Home(): React.ReactElement {
         defaultValue={120}
         onKeyDown={(e) => pressEnter(e, consolidateTempo)}
         onBlur={consolidateTempo}
+        onClick={(e) => consolidateTempo(e as any)}
+
         label="Tempo (BPM)"
       />
       <Grid container>
