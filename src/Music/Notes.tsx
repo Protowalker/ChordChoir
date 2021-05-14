@@ -38,7 +38,6 @@ export class Note {
 
   public static fromNumber(number: number): Note {
     const notes: Note[] = [
-
       parseNote("C").unwrap(),
       parseNote("C#").unwrap(),
       parseNote("D").unwrap(),
@@ -69,6 +68,53 @@ export class Note {
   // Takes the form of A#3
   public toString(): string {
     return this.letter + (this.sharp ? '#' : '') + this.octave;
+  }
+
+  public getRelative(key: Note): string {
+    const keyDifference = (this.getNumber() - key.getNumber()) % 12;
+    let output = "";
+    switch (keyDifference) {
+      case 0:
+        output = "I";
+        break;
+      case 1:
+        output = "#I";
+        break;
+      case 2:
+        output = "II";
+        break;
+      case 3:
+        output = "#II";
+        break;
+      case 4:
+        output = "III";
+        break;
+      case 5:
+        output = "IV";
+        break;
+      case 6:
+        output = "#IV";
+        break;
+      case 7:
+        output = "V";
+        break;
+      case 8:
+        output = "#V";
+        break;
+      case 9:
+        output = "VI";
+        break;
+      case 10:
+        output = "#VI";
+        break;
+      case 11:
+        output = "VII";
+        break;
+      default:
+        output = "???";
+        break;
+    }
+    return output;
   }
 }
 
@@ -133,16 +179,16 @@ function None<T>(): Maybe<T> {
 
 // Takes the form of A#3
 export function parseNote(note: string): Maybe<Note> {
-  const letter = note[0];
+  const letter = note[0].toUpperCase();
   const sharp = note[1] === "#";
 
   let octave: number;
   if (note[1] && note[2])
     octave = parseInt(note[2]);
-  else if (!sharp)
+  else if (!sharp && note[1])
     octave = parseInt(note[1]);
   else
-    octave = 0;
+    octave = 4;
 
   if (!(letter in NoteLetter))
     return None<Note>();
@@ -164,7 +210,7 @@ export interface NotesProps {
   onChange: (note: Note) => void
 }
 
-export const Notes = function (props: NotesProps): React.ReactElement {
+export const Notes = React.memo(function (props: NotesProps): React.ReactElement {
   const noteRef = useRef<HTMLSelectElement>(null);
   const startingNumber = props.startingNote.getNumber();
 
@@ -175,8 +221,8 @@ export const Notes = function (props: NotesProps): React.ReactElement {
     <Grid container item justify="center">
       <select ref={noteRef} onChange={() => props.onChange(Note.fromNumber(parseInt(noteRef.current?.value ?? '0' /*We need to explicitly nullcheck here even though it's impossible for this to ever be null */)))}>
         {range(0, 12).map((num) => {
-          return (<option key={num} value={startingNumber + num}> {props.startingNote.offset(num).toString()} </option>);
+          return (<option key={num} value={startingNumber + num}> {props.startingNote.offset(num).toString()} ({props.startingNote.offset(num).getRelative(props.startingNote)}) </option>);
         })}
       </select>
     </Grid>);
-};
+});

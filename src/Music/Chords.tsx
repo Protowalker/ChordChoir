@@ -75,41 +75,7 @@ export class Chord {
     return JSON.stringify(this) === JSON.stringify(rhs);
   }
 
-  public getRelative(key: Note): string {
-    const keyDifference = (this.base.getNumber() - key.getNumber()) % 12;
-    let output = "";
-    switch (keyDifference) {
-      case 0:
-      case 1:
-        output = "I";
-        break;
-      case 2:
-      case 3:
-        output = "II";
-        break;
-      case 4:
-      case 5:
-        output = "III";
-        break;
-      case 6:
-      case 7:
-        output = "IV";
-        break;
-      case 8:
-      case 9:
-        output = "V";
-        break;
-      case 10:
-      case 11:
-        output = "VI";
-        break;
-      
-    }
-    if((keyDifference % 2) === 1) { 
-      output += "#";
-    }
-    return output;
-  }
+  
 }
 
 
