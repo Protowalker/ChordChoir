@@ -2,7 +2,7 @@ import React, { useState, useCallback, useRef, FocusEvent } from "react";
 import ReactDOM from "react-dom";
 import "./index.css";
 import reportWebVitals from "./reportWebVitals";
-import {parseNote, range} from "./Music/Notes";
+import { Note, parseNote, range } from "./Music/Notes";
 import { ChordPiece, Chord, } from "./Music/Chords";
 import {
   Box,
@@ -30,7 +30,7 @@ function Home(): React.ReactElement {
     Array(chordCount).fill(new Chord())
   );
 
-  const consolidateChordCount = useCallback(function(ev: FocusEvent<HTMLInputElement>) {
+  const consolidateChordCount = useCallback(function (ev: FocusEvent<HTMLInputElement>) {
     let newChordCount = parseInt(ev.target.value);
     if (isNaN(newChordCount)) {
       newChordCount = 0;
@@ -52,10 +52,11 @@ function Home(): React.ReactElement {
 
 
   const [activeChord, setActiveChord] = useState(-1);
-  const generateSequence = useCallback(function(sequence: Chord[]) {
-    if(toneSeq.current)
+  const generateSequence = useCallback(function (sequence: Chord[]) {
+    console.log("called");
+    if (toneSeq.current)
       toneSeq.current.dispose();
-      
+
     const seq = new Tone.Sequence(
       (time, chordIndex) => {
         setActiveChord(chordIndex);
@@ -70,10 +71,10 @@ function Home(): React.ReactElement {
       "4n"
     ).start(0);
     toneSeq.current = seq;
-  
+
   }, [chordCount]);
 
-  const updateChordSequence = useCallback(function(entry: Chord, index: number) {
+  const updateChordSequence = useCallback(function (entry: Chord, index: number) {
     let newSequence = chordSequence.slice();
     newSequence[index] = entry;
     setSequence(newSequence);
@@ -82,7 +83,7 @@ function Home(): React.ReactElement {
   }, [chordSequence, generateSequence]);
 
   const [tempo, setTempo] = useState(120);
-  const consolidateTempo = useCallback(function(ev: FocusEvent<HTMLInputElement>) {
+  const consolidateTempo = useCallback(function (ev: FocusEvent<HTMLInputElement>) {
     let newTempo = parseInt(ev.target.value);
     if (isNaN(newTempo)) {
       newTempo = 120;
@@ -92,6 +93,31 @@ function Home(): React.ReactElement {
     Tone.Transport.bpm.value = newTempo;
   }, []);
 
+
+  const [key, setKey] = useState(parseNote("C4").unwrap());
+  const consolidateKey = useCallback(function (ev: FocusEvent<HTMLInputElement>) {
+      const newKey = parseNote(ev.target?.value ?? 'C4').unwrap();
+      // We need to update all the chords at once
+      let newSequence = chordSequence.slice();
+      for(let chord in newSequence) {
+        // offset of the note
+        // Changing the old chord makes javascript angry because it can't just have explicit references like a sane language
+        // So instead we make a copy of it
+        // And change that
+        const oldChord = newSequence[chord];
+        let newChord = new Chord(oldChord.base, oldChord.mode, oldChord.extensions);
+
+        const offset = newChord.base.getNumber() - key.getNumber();
+        newChord.base = newKey.offset(offset);
+
+        // Update the sequence with the new chord
+        newSequence[chord] = newChord;
+      }
+      setKey(newKey);
+      setSequence(newSequence);
+      generateSequence(newSequence);
+
+  }, [chordSequence, generateSequence]);
 
   const [playing, setPlaying] = useState(false);
   async function togglePlay() {
@@ -110,37 +136,48 @@ function Home(): React.ReactElement {
 
 
   const pressEnter = useCallback((ev: React.KeyboardEvent, func: (ev: any) => void) => {
-    if(ev.key === "Enter")
+    if (ev.key === "Enter")
       func(ev as any);
   }, []);
 
   return (
     <Box>
-      <Button variant="contained" onClick={togglePlay}>
-        {playing === false ? "Start" : "Stop"}
-      </Button>
-      <TextField
-        type="number"
-        defaultValue={4}
-        onBlur={consolidateChordCount}
-        onKeyDown={(e) => pressEnter(e, consolidateChordCount)}
-        onClick={(e) => consolidateChordCount(e as any)}
-        label="Note Count"
-        InputProps={{inputProps: {min:0, max:30}}}
-      />
-      <TextField
-        type="number"
-        defaultValue={120}
-        onKeyDown={(e) => pressEnter(e, consolidateTempo)}
-        onBlur={consolidateTempo}
-        onClick={(e) => consolidateTempo(e as any)}
-
-        label="Tempo (BPM)"
-      />
+      <Grid container direction="row" alignItems="flex-end" justify="space-evenly" xs={3}>
+        <Button variant="contained" onClick={togglePlay}>
+          {playing === false ? "Start" : "Stop"}
+        </Button>
+        <TextField
+          type="number"
+          defaultValue={4}
+          onBlur={consolidateChordCount}
+          onKeyDown={(e) => pressEnter(e, consolidateChordCount)}
+          onClick={(e) => consolidateChordCount(e as any)}
+          label="Note Count"
+          InputProps={{ inputProps: { min: 0, max: 30 } }}
+          style={{ width: "25%" }}
+        />
+        <TextField
+          type="number"
+          defaultValue={120}
+          onKeyDown={(e) => pressEnter(e, consolidateTempo)}
+          onBlur={consolidateTempo}
+          onClick={(e) => consolidateTempo(e as any)}
+          label="Tempo (BPM)"
+          style={{ width: "25%" }}
+        />
+        <TextField 
+          defaultValue="C4"
+          onKeyDown={(e) => pressEnter(e, consolidateKey)}
+          onBlur={consolidateKey}
+          onClick={(e) => consolidateKey(e as any)}
+          label="Key"
+          style={{ width: "25%" }}
+        />
+      </Grid>
       <Grid container>
         {chordSequence.map((chord: Chord, index: number) => (
           <ChordPiece
-            baseKey={parseNote("C4")}
+            baseKey={key}
             key={index}
             chord={chord}
             index={index}
@@ -154,11 +191,12 @@ function Home(): React.ReactElement {
 }
 
 
-  ReactDOM.render(
-    <React.StrictMode>
-      <CssBaseline />
-      <Home />
-    </React.StrictMode>,
-    document.getElementById("root")
-  );
+ReactDOM.render(
+  <React.StrictMode>
+    <CssBaseline />
+    <Home />
+  </React.StrictMode>,
+  document.getElementById("root")
+);
+
 

@@ -4,6 +4,7 @@ import { Box, Paper, Grid, FormControlLabel, Checkbox } from '@material-ui/core'
 import { colors } from '@material-ui/core/';
 import { makeStyles } from '@material-ui/core/styles';
 import { Notes, Note, Modes, Mode, parseNote } from './Notes';
+import { omitFromObject } from 'tone/build/esm/core/util/Defaults';
 
 export enum ExtensionState {
   Off = 0,
@@ -23,7 +24,7 @@ export class Chord {
   mode: Mode;
   extensions: Extensions;
 
-  constructor(base: Note = parseNote("C4"), mode: Mode = Mode.Major, extensions: Extensions = new Extensions()) {
+  constructor(base: Note = parseNote("C4").unwrap(), mode: Mode = Mode.Major, extensions: Extensions = new Extensions()) {
     this.base = base;
     this.mode = mode;
     this.extensions = extensions;
@@ -215,14 +216,14 @@ export const ChordPiece = React.memo(function (props: {
 }): React.ReactElement {
 
   const [mode, setMode] = useState(Mode.Major);
-  const [note, setNote] = useState(parseNote("C4"));
+  const [note, setNote] = useState(parseNote("C4").unwrap());
 
 
   const [seventh, setSeventh] = useState(ExtensionState.Off);
   const [ninth, setNinth] = useState(ExtensionState.Off);
   const [eleventh, setEleventh] = useState(ExtensionState.Off);
 
-  const { onChordChange, index } = props;
+  const {onChordChange, index, baseKey } = props;
   React.useEffect(() => {
     const chord = new Chord(note, mode, { seventh, ninth, eleventh });
     // safe to ignore because the function only modifies an object so everything is references
@@ -243,7 +244,7 @@ export const ChordPiece = React.memo(function (props: {
           justify="space-around"
           spacing={2}
         >
-          <Notes startingNote={props.baseKey} onChange={setNote}></Notes>
+          <Notes startingNote={baseKey} onChange={setNote}></Notes>
           <Grid container item justify="center">
             <Modes onChange={setMode} currentMode={mode}></Modes>
           </Grid>
@@ -268,4 +269,5 @@ export const ChordPiece = React.memo(function (props: {
       </Paper>
     </Box>
   );
-}, (prevProps, nextProps) => prevProps.chord.isEqual(nextProps.chord) && prevProps.active === nextProps.active && prevProps.index === nextProps.index && prevProps.onChordChange === nextProps.onChordChange);
+}, (prevProps, nextProps) => JSON.stringify(prevProps) === JSON.stringify(nextProps) && prevProps.onChordChange === nextProps.onChordChange);
+
