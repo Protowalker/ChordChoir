@@ -1,8 +1,8 @@
 {
   "files": {
     "main.css": "/ChordChoir/static/css/main.6dea0f05.chunk.css",
-    "main.js": "/ChordChoir/static/js/main.3d22126a.chunk.js",
-    "main.js.map": "/ChordChoir/static/js/main.3d22126a.chunk.js.map",
+    "main.js": "/ChordChoir/static/js/main.21345064.chunk.js",
+    "main.js.map": "/ChordChoir/static/js/main.21345064.chunk.js.map",
     "runtime-main.js": "/ChordChoir/static/js/runtime-main.83b1f351.js",
     "runtime-main.js.map": "/ChordChoir/static/js/runtime-main.83b1f351.js.map",
     "static/js/2.01d7a767.chunk.js": "/ChordChoir/static/js/2.01d7a767.chunk.js",
@@ -17,6 +17,6 @@
     "static/js/runtime-main.83b1f351.js",
     "static/js/2.01d7a767.chunk.js",
     "static/css/main.6dea0f05.chunk.css",
-    "static/js/main.3d22126a.chunk.js"
+    "static/js/main.21345064.chunk.js"
   ]
 }
