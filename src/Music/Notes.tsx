@@ -218,11 +218,24 @@ export const Notes = React.memo(function (props: NotesProps): React.ReactElement
 
   React.useEffect(() => props.onChange(Note.fromNumber(parseInt(noteRef.current?.value ?? '0'))), [props.startingNote]);
 
+  // Create the string for the dropdown. We want it in the form of C#5   (IV) with an equal spacing.
+  const createDropdownText = React.useCallback((num) => {
+    // Get the note in string form.
+    let noteString = props.startingNote.offset(num).toString();
+    // Get the relative note in string form (roman numerals)
+    let relativeString = "(" + props.startingNote.offset(num).getRelative(props.startingNote) + ")";
+
+    return noteString + '    ' + relativeString;
+
+
+  }, [props.startingNote]);
+
+
   return (
     <Grid container item justify="center">
       <select ref={noteRef} onChange={() => props.onChange(Note.fromNumber(parseInt(noteRef.current?.value ?? '0' /*We need to explicitly nullcheck here even though it's impossible for this to ever be null */)))}>
         {range(0, 12).map((num) => {
-          return (<option key={num} value={startingNumber + num}> {props.startingNote.offset(num).toString()} ({props.startingNote.offset(num).getRelative(props.startingNote)}) </option>);
+          return (<option key={num} value={startingNumber + num}> {createDropdownText(num)} </option>);
         })}
       </select>
     </Grid>);
