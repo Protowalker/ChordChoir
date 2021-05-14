@@ -164,10 +164,12 @@ export interface NotesProps {
   onChange: (note: Note) => void
 }
 
-export const Notes = React.memo(function (props: NotesProps): React.ReactElement {
+export const Notes = function (props: NotesProps): React.ReactElement {
   const noteRef = useRef<HTMLSelectElement>(null);
   const startingNumber = props.startingNote.getNumber();
 
+
+  React.useEffect(() => props.onChange(Note.fromNumber(parseInt(noteRef.current?.value ?? '0'))), [props.startingNote]);
 
   return (
     <Grid container item justify="center">
@@ -177,4 +179,4 @@ export const Notes = React.memo(function (props: NotesProps): React.ReactElement
         })}
       </select>
     </Grid>);
-});
+};
