@@ -22,10 +22,10 @@ export class Note {
   octave: number = 0;
 
   public getNumber(): number {
-    const noteLookup = 'CDEFGBA';
+    const noteLookup = 'CDEFGAB';
     let noteIndex = noteLookup.indexOf(this.letter) * 2;
-    if (noteIndex / 2 > noteLookup.indexOf('B')) noteIndex -= 1;
-    if (noteIndex / 2 > noteLookup.indexOf('E')) noteIndex -= 1;
+    //if ((noteIndex / 2) > noteLookup.indexOf('B')) noteIndex -= 1;
+    if ((noteIndex / 2) > noteLookup.indexOf('E')) noteIndex -= 1;
 
     const num = (this.octave * 12) + noteIndex + (this.sharp ? 1 : 0);
     return num;
@@ -179,7 +179,7 @@ function None<T>(): Maybe<T> {
 
 // Takes the form of A#3
 export function parseNote(note: string): Maybe<Note> {
-  const letter = note[0].toUpperCase();
+  const letter = note[0]?.toUpperCase() ?? 'C';
   const sharp = note[1] === "#";
 
   let octave: number;
@@ -213,6 +213,7 @@ export interface NotesProps {
 export const Notes = React.memo(function (props: NotesProps): React.ReactElement {
   const noteRef = useRef<HTMLSelectElement>(null);
   const startingNumber = props.startingNote.getNumber();
+  console.log("note: " + props.startingNote.toString() + "number: " + startingNumber);
 
 
   React.useEffect(() => props.onChange(Note.fromNumber(parseInt(noteRef.current?.value ?? '0'))), [props.startingNote]);
