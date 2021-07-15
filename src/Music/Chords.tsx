@@ -5,6 +5,8 @@ import { colors } from '@material-ui/core/';
 import { makeStyles } from '@material-ui/core/styles';
 import { Notes, Note, Modes, Mode, parseNote } from './Notes';
 import { omitFromObject } from 'tone/build/esm/core/util/Defaults';
+import { useDrag } from 'react-dnd';
+
 
 export enum ExtensionState {
   Off = 0,
@@ -199,8 +201,16 @@ export const ChordPiece = React.memo(function (props: {
 
   const classes = useStyles();
 
+  const [_, dragRef] = useDrag(
+    {
+      type: 'Chord'
+    },
+  );
+
   return (
-    <Box pt={1}>
+    // we need to ingore this because the TS def for box is missing ref
+    // @ts-ignore
+    <Box pt={1} mr={1} mt={0.5} ref={props.ref}>
       <Paper className={props.active ? classes.active : ""}>
         <Grid
           container
@@ -235,5 +245,5 @@ export const ChordPiece = React.memo(function (props: {
       </Paper>
     </Box>
   );
-}, (prevProps, nextProps) => JSON.stringify(prevProps) === JSON.stringify(nextProps) && prevProps.onChordChange === nextProps.onChordChange);
+}, (prevProps, nextProps) => JSON.stringify(prevProps) === JSON.stringify(nextProps));
 
