@@ -9,6 +9,10 @@ interface ChordSequenceAdd {
 }
 interface ChordSequenceRemove {
 	kind: "remove";
+	id: string;
+}
+interface ChordSequenceRemoveAt {
+	kind: "removeAt";
 	startIndex: number;
 	endIndex: number;
 }
@@ -31,6 +35,7 @@ interface ChordSequenceSetLength {
 export type ChordSequenceAction =
 	| ChordSequenceAdd
 	| ChordSequenceRemove
+	| ChordSequenceRemoveAt
 	| ChordSequenceUpdate
 	| ChordSequenceMove
 	| ChordSequenceSetLength;
@@ -48,6 +53,13 @@ const chordSequenceReducer = (
 		}
 
 		case "remove": {
+			let newState = oldState.slice();
+			const index = newState.findIndex((c) => c.id === action.id);
+			newState.splice(index);
+			return newState;
+		}
+
+		case "removeAt": {
 			let newState = oldState.slice();
 			newState.splice(
 				action.startIndex,

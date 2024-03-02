@@ -1,18 +1,18 @@
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import Box from "@material-ui/core/Box";
-import Button from "@material-ui/core/Button";
-import Grid from "@material-ui/core/Grid";
-import Paper from "@material-ui/core/Paper";
-import * as colors from "@material-ui/core/colors";
-import makeStyles from "@material-ui/core/styles/makeStyles";
+import Box from "@mui/material/Box";
+import Button from "@mui/material/Button";
+import Grid from "@mui/material/Grid";
+import Paper from "@mui/material/Paper";
+import * as colors from "@mui/material/colors";
+import { CSSProperties, makeStyles } from "@mui/styles";
 import React, { useMemo, useState } from "react";
 import { Chord, ExtensionState } from "../../Music/Chords";
 import { Mode, Note } from "../../Music/Notes";
 import { ChordExtension } from "./ChordExtension";
 import { Notes } from "./Notes";
 import { Modes } from "./Modes";
-import { Container } from "@material-ui/core";
+import { Container } from "@mui/material";
 
 const useStyles = makeStyles({
 	active: {
@@ -24,9 +24,9 @@ const ChordPiece = function (props: {
 	baseKey: Note;
 	chord: Chord;
 	onChordChange: (chord: Chord) => void;
-	delete: () => void;
+	delete: (chord: Chord) => void;
 	active: boolean;
-}): React.ReactElement {
+}) {
 	const [mode, setMode] = useState(Mode.Major);
 	const [relativeNote, setRelativeNote] = useState(0);
 
@@ -62,7 +62,7 @@ const ChordPiece = function (props: {
 		isDragging,
 	} = useSortable({ id: props.chord.id });
 
-	const style: React.CSSProperties = useMemo(
+	const style: CSSProperties = useMemo(
 		() => ({
 			transform: CSS.Transform.toString(transform),
 			transition,
@@ -86,14 +86,12 @@ const ChordPiece = function (props: {
 					>
 						<Button
 							style={{ width: "40px", height: "30px", alignSelf: "flex-end" }}
-							onClick={() => props.delete()}
+							onClick={() => props.delete(props.chord)}
 						>
 							X
 						</Button>
 						<Notes startingNote={baseKey} onChange={setRelativeNote}></Notes>
-						<Container style={{ display: "flex" }}>
-							<Modes onChange={setMode} currentMode={mode}></Modes>
-						</Container>
+						<Modes onChange={setMode} currentMode={mode}></Modes>
 						<ChordExtensions
 							seventh={seventh}
 							ninth={ninth}

@@ -1,8 +1,8 @@
 import React, { useRef } from "react";
 import { ExtensionState } from "../../Music/Chords";
-import Grid from "@material-ui/core/Grid";
-import FormControlLabel from "@material-ui/core/FormControlLabel";
-import Checkbox from "@material-ui/core/Checkbox";
+import Grid from "@mui/material/Grid";
+import FormControlLabel from "@mui/material/FormControlLabel";
+import Checkbox from "@mui/material/Checkbox";
 
 export const ChordExtension = React.memo(function (props: {
   number: number;

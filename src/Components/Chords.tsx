@@ -1,12 +1,13 @@
-import { DndContext } from "@dnd-kit/core";
+import { DndContext, DragEndEvent } from "@dnd-kit/core";
 import {
 	SortableContext,
 	horizontalListSortingStrategy,
 } from "@dnd-kit/sortable";
-import { Fab, makeStyles } from "@material-ui/core";
-import Grid from "@material-ui/core/Grid";
-import AddIcon from "@material-ui/icons/Add";
-import { useCallback, useContext } from "react";
+import { Fab } from "@mui/material";
+import makeStyles from "@mui/styles/makeStyles";
+import Grid from "@mui/material/Grid";
+import AddIcon from "@mui/icons-material/Add";
+import { useCallback, useContext, useMemo } from "react";
 import { Chord } from "../Music/Chords";
 import { ChordsContext, ControlsContext } from "./App";
 import ChordPiece from "./Chord/ChordPiece";
@@ -25,7 +26,7 @@ const Chords = (props: { activeChordIndex: number }) => {
 	const [controls] = useContext(ControlsContext);
 
 	const handleDragEnd = useCallback(
-		(event) => {
+		(event: DragEndEvent) => {
 			const { active, over } = event;
 			if (!over) return;
 
@@ -39,7 +40,7 @@ const Chords = (props: { activeChordIndex: number }) => {
 	);
 
 	const updateChord = useCallback(
-		(chord) => {
+		(chord: Chord) => {
 			dispatchSequence({
 				kind: "update",
 				id: chord.id,
@@ -53,26 +54,42 @@ const Chords = (props: { activeChordIndex: number }) => {
 		dispatchSequence({ kind: "add", newChord: new Chord() });
 	}, [dispatchSequence]);
 	const deleteChord = useCallback(
-		(index: number) => {
-			dispatchSequence({ kind: "remove", startIndex: index, endIndex: index });
+		(chord: Chord) => {
+			dispatchSequence({ kind: "remove", id: chord.id });
 		},
 		[dispatchSequence]
+	);
+
+	const items = useMemo(
+		() =>
+			chordSequence.map((chord, i) => (
+				<ChordPiece
+					key={chord.id}
+					active={props.activeChordIndex === i}
+					baseKey={controls.key}
+					chord={chord}
+					onChordChange={updateChord}
+					delete={deleteChord}
+				/>
+			)),
+		[
+			chordSequence,
+			controls.key,
+			updateChord,
+			deleteChord,
+			props.activeChordIndex,
+		]
+	);
+	const chordIds = useMemo(
+		() => chordSequence.map((c) => c.id),
+		[chordSequence]
 	);
 
 	return (
 		<Grid container>
 			<DndContext onDragEnd={handleDragEnd}>
-				<SortableContext items={chordSequence.map((c) => c.id)}>
-					{chordSequence.map((chord, i) => (
-						<ChordPiece
-							key={chord.id}
-							active={props.activeChordIndex === i}
-							baseKey={controls.key}
-							chord={chord}
-							onChordChange={(chord) => updateChord(chord)}
-							delete={() => deleteChord(i)}
-						/>
-					))}
+				<SortableContext items={chordIds}>
+					{items}
 					<Fab color="primary" className={classes.addButton} onClick={addChord}>
 						<AddIcon />
 					</Fab>
@@ -80,6 +97,6 @@ const Chords = (props: { activeChordIndex: number }) => {
 			</DndContext>
 		</Grid>
 	);
-}
+};
 
 export default React.memo(Chords);

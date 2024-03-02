@@ -1,6 +1,6 @@
-import Button from "@material-ui/core/Button";
-import Grid from "@material-ui/core/Grid";
-import TextField from "@material-ui/core/TextField";
+import Button from "@mui/material/Button";
+import Grid from "@mui/material/Grid";
+import TextField from "@mui/material/TextField";
 import { useCallback, FocusEvent, useContext } from "react";
 import { parseNote } from "../Music/Notes";
 import { ChordsContext, ControlsContext } from "./App";
@@ -16,6 +16,9 @@ export const Controls = React.memo(
 		const consolidateKey = useCallback(
 			function (ev: FocusEvent<HTMLInputElement>) {
 				const newKey = parseNote(ev.target?.value ?? "C4")!;
+				if(key.toString() === newKey.toString()) {
+					return;
+				}
 
 				// We need to update all the chords at once
 
@@ -34,7 +37,6 @@ export const Controls = React.memo(
 						newChord: newChord,
 					});
 				}
-
 				setControls((controls) => ({ ...controls, key: newKey }));
 			},
 			[chordSequence, key, dispatchSequence, setControls]

@@ -1,4 +1,4 @@
-import Box from "@material-ui/core/Box";
+import Box from "@mui/material/Box";
 import React, {
 	SetStateAction,
 	createContext,
@@ -103,8 +103,9 @@ export default function App(): React.ReactElement {
 	return (
 		<ControlsContext.Provider value={[controls, setControls]}>
 			<ChordsContext.Provider value={[chordSequence, dispatchSequence]}>
-				<Box width="100%">
+				<Box width="100%" pt={3}>
 					<Controls togglePlay={togglePlay}/>
+					<br />
 					<Chords activeChordIndex={activeChordIndex} />
 				</Box>
 			</ChordsContext.Provider>
