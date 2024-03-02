@@ -1,20 +1,15 @@
 import { Grid } from "@material-ui/core";
-import React, { useEffect } from "react";
-import { useRef } from "react";
-
+import React, { useRef } from "react";
 
 export enum NoteLetter {
-  A = 'A',
-  B = 'B',
-  C = 'C',
-  D = 'D',
-  E = 'E',
-  F = 'F',
-  G = 'G'
+  A = "A",
+  B = "B",
+  C = "C",
+  D = "D",
+  E = "E",
+  F = "F",
+  G = "G",
 }
-
-
-
 
 export class Note {
   letter: NoteLetter = NoteLetter.A;
@@ -22,12 +17,12 @@ export class Note {
   octave: number = 0;
 
   public getNumber(): number {
-    const noteLookup = 'CDEFGAB';
+    const noteLookup = "CDEFGAB";
     let noteIndex = noteLookup.indexOf(this.letter) * 2;
     //if ((noteIndex / 2) > noteLookup.indexOf('B')) noteIndex -= 1;
-    if ((noteIndex / 2) > noteLookup.indexOf('E')) noteIndex -= 1;
+    if (noteIndex / 2 > noteLookup.indexOf("E")) noteIndex -= 1;
 
-    const num = (this.octave * 12) + noteIndex + (this.sharp ? 1 : 0);
+    const num = this.octave * 12 + noteIndex + (this.sharp ? 1 : 0);
     return num;
   }
 
@@ -38,20 +33,19 @@ export class Note {
 
   public static fromNumber(number: number): Note {
     const notes: Note[] = [
-      parseNote("C").unwrap(),
-      parseNote("C#").unwrap(),
-      parseNote("D").unwrap(),
-      parseNote("D#").unwrap(),
-      parseNote("E").unwrap(),
-      parseNote("F").unwrap(),
-      parseNote("F#").unwrap(),
-      parseNote("G").unwrap(),
-      parseNote("G#").unwrap(),
-      parseNote("A").unwrap(),
-      parseNote("A#").unwrap(),
-      parseNote("B").unwrap(),
+      parseNote("C")!,
+      parseNote("C#")!,
+      parseNote("D")!,
+      parseNote("D#")!,
+      parseNote("E")!,
+      parseNote("F")!,
+      parseNote("F#")!,
+      parseNote("G")!,
+      parseNote("G#")!,
+      parseNote("A")!,
+      parseNote("A#")!,
+      parseNote("B")!,
     ];
-
 
     let note = notes[number % 12];
     const octave = Math.floor(number / 12);
@@ -67,7 +61,7 @@ export class Note {
 
   // Takes the form of A#3
   public toString(): string {
-    return this.letter + (this.sharp ? '#' : '') + this.octave;
+    return this.letter + (this.sharp ? "#" : "") + this.octave;
   }
 
   public getRelative(key: Note): string {
@@ -126,7 +120,10 @@ export enum Mode {
   Sus4 = "Sus4",
 }
 
-export function Modes(props: { onChange(mode: Mode): void, currentMode: Mode }): React.ReactElement {
+export function Modes(props: {
+  onChange(mode: Mode): void;
+  currentMode: Mode;
+}): React.ReactElement {
   const selectedRef = useRef<HTMLSelectElement>(null);
 
   let modes = [];
@@ -140,9 +137,7 @@ export function Modes(props: { onChange(mode: Mode): void, currentMode: Mode }):
   return (
     <select
       ref={selectedRef}
-      onChange={() =>
-        props.onChange((selectedRef.current?.value as any) as Mode)
-      }
+      onChange={() => props.onChange(selectedRef.current?.value as any as Mode)}
     >
       {modes.map((val) => (
         <option key={val} value={val} selected={val === props.currentMode}>
@@ -153,90 +148,102 @@ export function Modes(props: { onChange(mode: Mode): void, currentMode: Mode }):
   );
 }
 
+// class Maybe<T> {
+//   #val: T | null;
+//   constructor(val: T | null) {
+//     this.#val = val;
+//   }
 
-class Maybe<T> {
-  #val: T | null;
-  constructor(val: T | null) {
-    this.#val = val;
-  }
+//   public unwrap(): T {
+//     return this.#val as T;
+//   }
 
-  public unwrap(): T {
-    return this.#val as T;
-  }
+//   public isSome(): boolean {
+//     return this.#val !== null;
+//   }
+// }
 
-  public isSome(): boolean {
-    return (this.#val !== null);
-  }
-}
-
-function Some<T>(val: T): Maybe<T> {
-  return new Maybe(val);
-}
-function None<T>(): Maybe<T> {
-  return new Maybe<T>(null);
-}
-
+// function Some<T>(val: T): Maybe<T> {
+//   return new Maybe(val);
+// }
+// function None<T>(): Maybe<T> {
+//   return new Maybe<T>(null);
+// }
 
 // Takes the form of A#3
-export function parseNote(note: string): Maybe<Note> {
-  const letter = note[0]?.toUpperCase() ?? 'C';
+export function parseNote(note: string): Note | null {
+  const letter = note[0]?.toUpperCase() ?? "C";
   const sharp = note[1] === "#";
 
   let octave: number;
-  if (note[1] && note[2])
-    octave = parseInt(note[2]);
-  else if (!sharp && note[1])
-    octave = parseInt(note[1]);
-  else
-    octave = 4;
+  if (note[1] && note[2]) octave = parseInt(note[2]);
+  else if (!sharp && note[1]) octave = parseInt(note[1]);
+  else octave = 4;
 
-  if (!(letter in NoteLetter))
-    return None<Note>();
+  if (!(letter in NoteLetter)) return null;
 
   let retNote = new Note();
   retNote.letter = letter as NoteLetter;
   retNote.octave = octave;
   retNote.sharp = sharp;
 
-  return Some(retNote);
+  return retNote;
 }
 
-
-
-export const range = (start: number, end: number) => Array.from({ length: (end - start) }, (v, k) => k + start);
+export const range = (start: number, end: number) =>
+  Array.from({ length: end - start }, (v, k) => k + start);
 
 export interface NotesProps {
-  startingNote: Note,
-  onChange: (note: Note) => void
+  startingNote: Note;
+  onChange: (note: Note) => void;
 }
 
-export const Notes = React.memo(function (props: NotesProps): React.ReactElement {
+export const Notes = React.memo(function ({
+  onChange,
+  startingNote,
+}: NotesProps): React.ReactElement {
   const noteRef = useRef<HTMLSelectElement>(null);
-  const startingNumber = props.startingNote.getNumber();
-  console.log("note: " + props.startingNote.toString() + "number: " + startingNumber);
+  const startingNumber = startingNote.getNumber();
 
-
-  React.useEffect(() => props.onChange(Note.fromNumber(parseInt(noteRef.current?.value ?? '0'))), [props.startingNote]);
 
   // Create the string for the dropdown. We want it in the form of C#5   (IV) with an equal spacing.
-  const createDropdownText = React.useCallback((num) => {
-    // Get the note in string form.
-    let noteString = props.startingNote.offset(num).toString();
-    // Get the relative note in string form (roman numerals)
-    let relativeString = "(" + props.startingNote.offset(num).getRelative(props.startingNote) + ")";
+  const createDropdownText = React.useCallback(
+    (num) => {
+      // Get the note in string form.
+      let noteString = startingNote.offset(num).toString();
+      // Get the relative note in string form (roman numerals)
+      let relativeString =
+        "(" + startingNote.offset(num).getRelative(startingNote) + ")";
 
-    return noteString + '    ' + relativeString;
-
-
-  }, [props.startingNote]);
-
+      return noteString + "    " + relativeString;
+    },
+    [startingNote]
+  );
 
   return (
     <Grid container item justify="center">
-      <select ref={noteRef} onChange={() => props.onChange(Note.fromNumber(parseInt(noteRef.current?.value ?? '0' /*We need to explicitly nullcheck here even though it's impossible for this to ever be null */)))}>
+      <select
+        ref={noteRef}
+        onChange={() =>
+          onChange(
+            Note.fromNumber(
+              parseInt(
+                noteRef.current?.value ??
+                  "0" /*We need to explicitly nullcheck here even though it's impossible for this to ever be null */
+              )
+            )
+          )
+        }
+      >
         {range(0, 12).map((num) => {
-          return (<option key={num} value={startingNumber + num}> {createDropdownText(num)} </option>);
+          return (
+            <option key={num} value={startingNumber + num}>
+              {" "}
+              {createDropdownText(num)}{" "}
+            </option>
+          );
         })}
       </select>
-    </Grid>);
-});
+    </Grid>
+  );
+}, (prev, next) => JSON.stringify(prev) === JSON.stringify(next));
