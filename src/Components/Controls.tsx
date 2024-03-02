@@ -14,7 +14,7 @@ export default function Controls({ togglePlay }: { togglePlay: () => void }) {
 	const consolidateKey = useCallback(
 		function (ev: FocusEvent<HTMLInputElement>) {
 			const newKey = parseNote(ev.target?.value ?? "C4")!;
-			
+
 			// We need to update all the chords at once
 
 			for (const oldChord of chordSequence) {
@@ -26,10 +26,14 @@ export default function Controls({ togglePlay }: { togglePlay: () => void }) {
 
 				const offset = newChord.base.getNumber() - key.getNumber();
 				newChord.base = newKey.offset(offset);
-				dispatchSequence({ kind: "update", id: oldChord.id, newChord: newChord });
+				dispatchSequence({
+					kind: "update",
+					id: oldChord.id,
+					newChord: newChord,
+				});
 			}
 
-			setControls((controls) => ({ ...controls, key: newKey}));
+			setControls((controls) => ({ ...controls, key: newKey }));
 		},
 		[chordSequence, key, dispatchSequence, setControls]
 	);
@@ -51,14 +55,15 @@ export default function Controls({ togglePlay }: { togglePlay: () => void }) {
 	return (
 		<Grid
 			container
+			item
 			direction="row"
 			alignItems="flex-end"
-			justify="space-evenly"
+			justifyContent="space-evenly"
 			xs={3}
 		>
-			<Button variant="contained" onClick={togglePlay}>
-				{playing === false ? "Start" : "Stop"}
-			</Button>
+				<Button variant="contained" onClick={togglePlay}>
+					{playing === false ? "Start" : "Stop"}
+				</Button>
 			<TextField
 				type="number"
 				defaultValue={120}

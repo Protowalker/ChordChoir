@@ -50,7 +50,7 @@ export const ChordExtension = React.memo(function (props: {
       container
       item
       direction="row"
-      justify="space-between"
+      justifyContent="space-between"
       wrap="nowrap"
       alignItems="center"
     >

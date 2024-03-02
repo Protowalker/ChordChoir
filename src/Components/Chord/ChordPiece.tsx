@@ -61,7 +61,7 @@ export const ChordPiece = React.memo(
               item
               direction="column"
               alignItems="stretch"
-              justify="space-around"
+              justifyContent="space-around"
               spacing={2}
             >
               <Button
@@ -71,7 +71,7 @@ export const ChordPiece = React.memo(
                 X
               </Button>
               <Notes startingNote={baseKey} onChange={setRelativeNote}></Notes>
-              <Grid container item justify="center">
+              <Grid container item justifyContent="center">
                 <Modes onChange={setMode} currentMode={mode}></Modes>
               </Grid>
               <Grid container item direction="column" alignItems="center">
