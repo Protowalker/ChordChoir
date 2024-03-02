@@ -10,7 +10,6 @@ import Paper from "@material-ui/core/Paper";
 import Grid from "@material-ui/core/Grid";
 import Button from "@material-ui/core/Button";
 import { ChordExtension } from "./ChordExtension";
-import zIndex from "@material-ui/core/styles/zIndex";
 
 const useStyles = makeStyles({
   active: {
