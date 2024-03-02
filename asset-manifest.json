@@ -1,22 +1,15 @@
 {
   "files": {
-    "main.css": "/ChordChoir/static/css/main.6dea0f05.chunk.css",
-    "main.js": "/ChordChoir/static/js/main.4a917170.chunk.js",
-    "main.js.map": "/ChordChoir/static/js/main.4a917170.chunk.js.map",
-    "runtime-main.js": "/ChordChoir/static/js/runtime-main.aae94d0d.js",
-    "runtime-main.js.map": "/ChordChoir/static/js/runtime-main.aae94d0d.js.map",
-    "static/js/2.c248b5d4.chunk.js": "/ChordChoir/static/js/2.c248b5d4.chunk.js",
-    "static/js/2.c248b5d4.chunk.js.map": "/ChordChoir/static/js/2.c248b5d4.chunk.js.map",
-    "static/js/3.33f1c1f3.chunk.js": "/ChordChoir/static/js/3.33f1c1f3.chunk.js",
-    "static/js/3.33f1c1f3.chunk.js.map": "/ChordChoir/static/js/3.33f1c1f3.chunk.js.map",
+    "main.css": "/ChordChoir/static/css/main.e6c13ad2.css",
+    "main.js": "/ChordChoir/static/js/main.23ca501c.js",
+    "static/js/453.6a021ceb.chunk.js": "/ChordChoir/static/js/453.6a021ceb.chunk.js",
     "index.html": "/ChordChoir/index.html",
-    "static/css/main.6dea0f05.chunk.css.map": "/ChordChoir/static/css/main.6dea0f05.chunk.css.map",
-    "static/js/2.c248b5d4.chunk.js.LICENSE.txt": "/ChordChoir/static/js/2.c248b5d4.chunk.js.LICENSE.txt"
+    "main.e6c13ad2.css.map": "/ChordChoir/static/css/main.e6c13ad2.css.map",
+    "main.23ca501c.js.map": "/ChordChoir/static/js/main.23ca501c.js.map",
+    "453.6a021ceb.chunk.js.map": "/ChordChoir/static/js/453.6a021ceb.chunk.js.map"
   },
   "entrypoints": [
-    "static/js/runtime-main.aae94d0d.js",
-    "static/js/2.c248b5d4.chunk.js",
-    "static/css/main.6dea0f05.chunk.css",
-    "static/js/main.4a917170.chunk.js"
+    "static/css/main.e6c13ad2.css",
+    "static/js/main.23ca501c.js"
   ]
 }
