@@ -8,8 +8,10 @@ import * as colors from "@material-ui/core/colors";
 import makeStyles from "@material-ui/core/styles/makeStyles";
 import React, { useState } from "react";
 import { Chord, ExtensionState } from "../../Music/Chords";
-import { Mode, Modes, Note, Notes } from "../../Music/Notes";
+import { Mode, Note, } from "../../Music/Notes";
 import { ChordExtension } from "./ChordExtension";
+import { Notes } from "./Notes";
+import { Modes } from "./Modes";
 
 const useStyles = makeStyles({
   active: {
