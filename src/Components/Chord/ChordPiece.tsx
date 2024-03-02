@@ -50,7 +50,8 @@ export const ChordPiece = React.memo(
     const style: React.CSSProperties = {
       transform: CSS.Transform.toString(transform),
       transition,
-	  zIndex: isDragging ? 1 : 0
+	  zIndex: isDragging ? 1 : 0,
+	  touchAction: "none"
     };
 
 
