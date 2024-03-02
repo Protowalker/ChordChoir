@@ -9,7 +9,8 @@ import AddIcon from "@material-ui/icons/Add";
 import { useCallback, useContext } from "react";
 import { Chord } from "../Music/Chords";
 import { ChordsContext, ControlsContext } from "./App";
-import { ChordPiece } from "./Chord/ChordPiece";
+import ChordPiece from "./Chord/ChordPiece";
+import React from "react";
 
 const useStyles = makeStyles({
 	addButton: {
@@ -17,9 +18,7 @@ const useStyles = makeStyles({
 	},
 });
 
-export function Chords(props: {
-	activeChordIndex: number;
-}): React.ReactElement {
+const Chords = (props: { activeChordIndex: number }) => {
 	const classes = useStyles();
 
 	const [chordSequence, dispatchSequence] = useContext(ChordsContext);
@@ -63,10 +62,7 @@ export function Chords(props: {
 	return (
 		<Grid container>
 			<DndContext onDragEnd={handleDragEnd}>
-				<SortableContext
-					items={chordSequence.map((c) => c.id)}
-					strategy={horizontalListSortingStrategy}
-				>
+				<SortableContext items={chordSequence.map((c) => c.id)}>
 					{chordSequence.map((chord, i) => (
 						<ChordPiece
 							key={chord.id}
@@ -85,3 +81,5 @@ export function Chords(props: {
 		</Grid>
 	);
 }
+
+export default React.memo(Chords);

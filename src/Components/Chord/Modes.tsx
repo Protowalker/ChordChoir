@@ -1,31 +1,34 @@
 import { useRef } from "react";
 import { Mode } from "../../Music/Notes";
+import React from "react";
 
-export function Modes(props: {
-	onChange(mode: Mode): void;
-	currentMode: Mode;
-}): React.ReactElement {
-	const selectedRef = useRef<HTMLSelectElement>(null);
+export const Modes = React.memo(
+	function Modes(props: { onChange(mode: Mode): void; currentMode: Mode }) {
+		const selectedRef = useRef<HTMLSelectElement>(null);
 
-	let modes = [];
+		let modes = [];
 
-	for (const value in Mode) {
-		modes.push(value);
-	}
+		for (const value in Mode) {
+			modes.push(value);
+		}
 
-	modes = modes.filter((mode) => isNaN(parseInt(mode)));
+		modes = modes.filter((mode) => isNaN(parseInt(mode)));
 
-	return (
-		<select
-			value={modes.find((val) => val === props.currentMode)}
-			ref={selectedRef}
-			onChange={() => props.onChange(selectedRef.current?.value as any as Mode)}
-		>
-			{modes.map((val) => (
-				<option key={val} value={val}>
-					{val}
-				</option>
-			))}
-		</select>
-	);
-}
+		return (
+			<select
+				value={modes.find((val) => val === props.currentMode)}
+				ref={selectedRef}
+				onChange={() =>
+					props.onChange(selectedRef.current?.value as any as Mode)
+				}
+			>
+				{modes.map((val) => (
+					<option key={val} value={val}>
+						{val}
+					</option>
+				))}
+			</select>
+		);
+	},
+	(prev, next) => prev.currentMode === next.currentMode
+);

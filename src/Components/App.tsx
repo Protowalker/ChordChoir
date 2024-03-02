@@ -9,7 +9,7 @@ import React, {
 	useState,
 } from "react";
 import Controls from "./Controls";
-import { Chords } from "./Chords";
+import Chords from "./Chords";
 import { Note, parseNote, range } from "../Music/Notes";
 import * as Tone from "tone";
 import { Chord } from "../Music/Chords";
@@ -103,7 +103,7 @@ export default function App(): React.ReactElement {
 	return (
 		<ControlsContext.Provider value={[controls, setControls]}>
 			<ChordsContext.Provider value={[chordSequence, dispatchSequence]}>
-				<Box>
+				<Box width="100%">
 					<Controls togglePlay={togglePlay}/>
 					<Chords activeChordIndex={activeChordIndex} />
 				</Box>

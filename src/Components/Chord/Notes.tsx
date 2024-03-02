@@ -8,7 +8,7 @@ export interface NotesProps {
 }
 
 export const Notes = React.memo(
-	function ({ onChange, startingNote }: NotesProps): React.ReactElement {
+	function Notes({ onChange, startingNote }: NotesProps): React.ReactElement {
 		const noteRef = useRef<HTMLSelectElement>(null);
 
 		// Create the string for the dropdown. We want it in the form of C#5   (IV) with an equal spacing.
