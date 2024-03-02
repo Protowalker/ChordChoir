@@ -195,7 +195,7 @@ export const range = (start: number, end: number) =>
 
 export interface NotesProps {
   startingNote: Note;
-  onChange: (note: Note) => void;
+  onChange: (relativeNote: number) => void;
 }
 
 export const Notes = React.memo(function ({
@@ -203,8 +203,6 @@ export const Notes = React.memo(function ({
   startingNote,
 }: NotesProps): React.ReactElement {
   const noteRef = useRef<HTMLSelectElement>(null);
-  const startingNumber = startingNote.getNumber();
-
 
   // Create the string for the dropdown. We want it in the form of C#5   (IV) with an equal spacing.
   const createDropdownText = React.useCallback(
@@ -221,23 +219,18 @@ export const Notes = React.memo(function ({
   );
 
   return (
-    <Grid container item justify="center">
+    <Grid container item justifyContent="center">
       <select
         ref={noteRef}
         onChange={() =>
           onChange(
-            Note.fromNumber(
-              parseInt(
-                noteRef.current?.value ??
-                  "0" /*We need to explicitly nullcheck here even though it's impossible for this to ever be null */
-              )
-            )
+			parseInt(noteRef.current?.value ?? "0")
           )
         }
       >
         {range(0, 12).map((num) => {
           return (
-            <option key={num} value={startingNumber + num}>
+            <option key={num} value={num}>
               {" "}
               {createDropdownText(num)}{" "}
             </option>

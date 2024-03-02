@@ -58,8 +58,7 @@ const chordSequenceReducer = (
 		case "update": {
 			let newState = oldState.slice();
 			const oldChordIndex = newState.findIndex((c) => c.id === action.id);
-			const oldChord = newState[oldChordIndex];
-			action.newChord.id = oldChord.id;
+			action.newChord.id = action.id;
 			newState[oldChordIndex] = action.newChord;
 			return newState;
 		}

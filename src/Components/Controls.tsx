@@ -17,8 +17,7 @@ export default function Controls({ togglePlay }: { togglePlay: () => void }) {
 			
 			// We need to update all the chords at once
 
-			for (let i = 0; i < chordSequence.length; i++) {
-				const oldChord = chordSequence[i];
+			for (const oldChord of chordSequence) {
 				let newChord = new Chord(
 					oldChord.base,
 					oldChord.mode,

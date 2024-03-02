@@ -1,14 +1,14 @@
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
+import Box from "@material-ui/core/Box";
+import Button from "@material-ui/core/Button";
+import Grid from "@material-ui/core/Grid";
+import Paper from "@material-ui/core/Paper";
 import * as colors from "@material-ui/core/colors";
 import makeStyles from "@material-ui/core/styles/makeStyles";
 import React, { useState } from "react";
 import { Chord, ExtensionState } from "../../Music/Chords";
-import { Mode, Modes, Note, Notes, parseNote } from "../../Music/Notes";
-import Box from "@material-ui/core/Box";
-import Paper from "@material-ui/core/Paper";
-import Grid from "@material-ui/core/Grid";
-import Button from "@material-ui/core/Button";
+import { Mode, Modes, Note, Notes } from "../../Music/Notes";
 import { ChordExtension } from "./ChordExtension";
 
 const useStyles = makeStyles({
@@ -26,7 +26,7 @@ export const ChordPiece = React.memo(
     active: boolean;
   }): React.ReactElement {
     const [mode, setMode] = useState(Mode.Major);
-    const [note, setNote] = useState(parseNote("C4")!);
+    const [relativeNote, setRelativeNote] = useState(0);
 
     const [seventh, setSeventh] = useState(ExtensionState.Off);
     const [ninth, setNinth] = useState(ExtensionState.Off);
@@ -34,10 +34,11 @@ export const ChordPiece = React.memo(
 
     const { onChordChange, baseKey } = props;
     React.useEffect(() => {
-      const chord = new Chord(note, mode, { seventh, ninth, eleventh });
-      chord.id = props.chord.id;
+		const note = baseKey.offset(relativeNote);
+    	const chord = new Chord(note, mode, { seventh, ninth, eleventh });
+    	chord.id = props.chord.id;
       onChordChange(chord);
-    }, [mode, note, seventh, ninth, eleventh, onChordChange, props.chord.id]);
+    }, [mode, baseKey, relativeNote, seventh, ninth, eleventh, onChordChange, props.chord.id]);
 
     const classes = useStyles();
 
@@ -69,7 +70,7 @@ export const ChordPiece = React.memo(
               >
                 X
               </Button>
-              <Notes startingNote={baseKey} onChange={setNote}></Notes>
+              <Notes startingNote={baseKey} onChange={setRelativeNote}></Notes>
               <Grid container item justify="center">
                 <Modes onChange={setMode} currentMode={mode}></Modes>
               </Grid>
