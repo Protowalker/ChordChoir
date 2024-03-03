@@ -1,7 +1,7 @@
 import { nanoid } from "nanoid";
 import { Mode, Note, parseNote } from "./Notes";
 
-export enum ExtensionState {
+export const enum ExtensionState {
 	Off = 0,
 	Normal = 1,
 	Flat = 2,

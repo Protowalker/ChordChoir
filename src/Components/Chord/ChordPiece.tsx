@@ -8,11 +8,10 @@ import * as colors from "@mui/material/colors";
 import { CSSProperties, makeStyles } from "@mui/styles";
 import React, { useMemo, useState } from "react";
 import { Chord, ExtensionState } from "../../Music/Chords";
-import { Mode, Note } from "../../Music/Notes";
+import { Note } from "../../Music/Notes";
 import { ChordExtension } from "./ChordExtension";
-import { Notes } from "./Notes";
 import { Modes } from "./Modes";
-import { Container } from "@mui/material";
+import { Notes } from "./Notes";
 
 const useStyles = makeStyles({
 	active: {
@@ -27,12 +26,12 @@ const ChordPiece = function (props: {
 	delete: (chord: Chord) => void;
 	active: boolean;
 }) {
-	const [mode, setMode] = useState(Mode.Major);
-	const [relativeNote, setRelativeNote] = useState(0);
+	const [mode, setMode] = useState(props.chord.mode);
+	const [relativeNote, setRelativeNote] = useState(() => props.chord.base.getRelativeNumber(props.baseKey));
 
-	const [seventh, setSeventh] = useState(ExtensionState.Off);
-	const [ninth, setNinth] = useState(ExtensionState.Off);
-	const [eleventh, setEleventh] = useState(ExtensionState.Off);
+	const [seventh, setSeventh] = useState(props.chord.extensions.seventh);
+	const [ninth, setNinth] = useState(props.chord.extensions.ninth);
+	const [eleventh, setEleventh] = useState(props.chord.extensions.eleventh);
 
 	const { onChordChange, baseKey } = props;
 	React.useEffect(() => {
@@ -69,7 +68,7 @@ const ChordPiece = function (props: {
 			zIndex: isDragging ? 1 : 0,
 			touchAction: "none",
 		}),
-		[transform, isDragging]
+		[transform, isDragging, transition]
 	);
 
 	return (
@@ -90,7 +89,7 @@ const ChordPiece = function (props: {
 						>
 							X
 						</Button>
-						<Notes startingNote={baseKey} onChange={setRelativeNote}></Notes>
+						<Notes baseKey={baseKey} offset={relativeNote} onChange={setRelativeNote}></Notes>
 						<Modes onChange={setMode} currentMode={mode}></Modes>
 						<ChordExtensions
 							seventh={seventh}

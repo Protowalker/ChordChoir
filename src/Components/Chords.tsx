@@ -1,7 +1,6 @@
 import { DndContext, DragEndEvent } from "@dnd-kit/core";
 import {
 	SortableContext,
-	horizontalListSortingStrategy,
 } from "@dnd-kit/sortable";
 import { Fab } from "@mui/material";
 import makeStyles from "@mui/styles/makeStyles";

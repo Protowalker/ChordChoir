@@ -1,11 +1,13 @@
 import Button from "@mui/material/Button";
 import Grid from "@mui/material/Grid";
 import TextField from "@mui/material/TextField";
-import { useCallback, FocusEvent, useContext } from "react";
+import { useCallback, FocusEvent, useContext, useState } from "react";
 import { parseNote } from "../Music/Notes";
 import { ChordsContext, ControlsContext } from "./App";
 import { Chord } from "../Music/Chords";
 import React from "react";
+import { encodeLink } from "../Music/LinkParser";
+import { Alert } from "@mui/material";
 
 export const Controls = React.memo(
 	({ togglePlay }: { togglePlay: () => void }) => {
@@ -16,7 +18,7 @@ export const Controls = React.memo(
 		const consolidateKey = useCallback(
 			function (ev: FocusEvent<HTMLInputElement>) {
 				const newKey = parseNote(ev.target?.value ?? "C4")!;
-				if(key.toString() === newKey.toString()) {
+				if (key.toString() === newKey.toString()) {
 					return;
 				}
 
@@ -56,6 +58,14 @@ export const Controls = React.memo(
 			[setControls]
 		);
 
+		const createShareLink = useCallback(() => {
+			const link = encodeLink(controls.tempo, controls.key, chordSequence);
+			const url = `${window.location.host}${window.location.pathname}?sequence=${link}`;
+			navigator.clipboard.writeText(url);
+			setShowLinkAlert(true);
+		}, [chordSequence, controls]);
+		const [showLinkAlert, setShowLinkAlert] = useState(false);
+
 		return (
 			<Grid
 				container
@@ -63,30 +73,56 @@ export const Controls = React.memo(
 				direction="row"
 				alignItems="flex-end"
 				justifyContent="space-evenly"
-				xs={3}
+				xs={4}
+				spacing={2}
 			>
-				<Button variant="contained" onClick={togglePlay}>
-					{playing === false ? "Start" : "Stop"}
-				</Button>
-				<TextField
-					type="number"
-					defaultValue={120}
-					onKeyDown={(e) =>
-						pressEnter(e, (ev) => setTempo(parseInt(ev.target.value) || 0))
-					}
-					onBlur={(ev) => setTempo(parseInt(ev.target.value) || 0)}
-					onClick={(ev: any) => setTempo(parseInt(ev.target.value) || 0)}
-					label="Tempo (BPM)"
-					style={{ width: "25%" }}
-				/>
-				<TextField
-					defaultValue="C4"
-					onKeyDown={(e) => pressEnter(e, consolidateKey)}
-					onBlur={consolidateKey}
-					onClick={(e) => consolidateKey(e as any)}
-					label="Key"
-					style={{ width: "25%" }}
-				/>
+				<Grid item xs={3}>
+					<Button variant="contained" onClick={togglePlay} fullWidth>
+						{playing === false ? "Start" : "Stop"}
+					</Button>
+				</Grid>
+				<Grid item xs={3}>
+					<TextField
+						type="number"
+						defaultValue={controls.tempo}
+						onKeyDown={(e) =>
+							pressEnter(e, (ev) => setTempo(parseInt(ev.target.value) || 0))
+						}
+						onBlur={(ev) => setTempo(parseInt(ev.target.value) || 0)}
+						onClick={(ev: any) => setTempo(parseInt(ev.target.value) || 0)}
+						label="Tempo (BPM)"
+						variant="standard"
+					/>
+				</Grid>
+				<Grid item xs={3}>
+					<TextField
+						defaultValue={key.toString()}
+						onKeyDown={(e) => pressEnter(e, consolidateKey)}
+						onBlur={consolidateKey}
+						onClick={(e) => consolidateKey(e as any)}
+						label="Key"
+						variant="standard"
+					/>
+				</Grid>
+				<Grid item position="relative" xs={3}>
+					{showLinkAlert && (
+						<Alert
+							style={{
+								position: "absolute",
+								left: "100%",
+								top: "15%",
+								height: "100%",
+								width: "300px",
+							}}
+							onClose={() => setShowLinkAlert(false)}
+						>
+							Link copied to clipboard
+						</Alert>
+					)}
+					<Button variant="contained" fullWidth onClick={createShareLink}>
+						Share
+					</Button>
+				</Grid>
 			</Grid>
 		);
 	}

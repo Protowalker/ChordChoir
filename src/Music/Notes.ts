@@ -61,6 +61,10 @@ export class Note {
 		return this.letter + (this.sharp ? "#" : "") + this.octave;
 	}
 
+	public getRelativeNumber(key: Note): number {
+		return (this.getNumber() - key.getNumber()) % 12;
+	}
+
 	public getRelative(key: Note): string {
 		const keyDifference = (this.getNumber() - key.getNumber()) % 12;
 		let output = "";
@@ -109,13 +113,21 @@ export class Note {
 	}
 }
 
-export enum Mode {
-	Root = "Root",
-	Major = "Major",
-	Minor = "Minor",
-	Sus2 = "Sus2",
-	Sus4 = "Sus4",
+export const enum Mode {
+	Root = 0,
+	Major = 1,
+	Minor = 2,
+	Sus2 = 3,
+	Sus4 = 4,
 }
+
+export const modes = Object.freeze({
+	[Mode.Root]: "Root",
+	[Mode.Major]: "Major",
+	[Mode.Minor]: "Minor",
+	[Mode.Sus2]: "Sus2",
+	[Mode.Sus4]: "Sus4",
+});
 
 // Takes the form of A#3
 export function parseNote(note: string): Note | null {

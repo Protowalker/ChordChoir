@@ -32,13 +32,19 @@ interface ChordSequenceSetLength {
 	length: number;
 }
 
+interface ChordSequenceOverwrite {
+	kind: "overwrite";
+	newSequence: Chord[];
+}
+
 export type ChordSequenceAction =
 	| ChordSequenceAdd
 	| ChordSequenceRemove
 	| ChordSequenceRemoveAt
 	| ChordSequenceUpdate
 	| ChordSequenceMove
-	| ChordSequenceSetLength;
+	| ChordSequenceSetLength
+	| ChordSequenceOverwrite;
 
 const chordSequenceReducer = (
 	oldState: Chord[],
@@ -55,7 +61,7 @@ const chordSequenceReducer = (
 		case "remove": {
 			let newState = oldState.slice();
 			const index = newState.findIndex((c) => c.id === action.id);
-			newState.splice(index);
+			newState.splice(index, 1);
 			return newState;
 		}
 
@@ -86,6 +92,9 @@ const chordSequenceReducer = (
 			}
 
 			return newState;
+		}
+		case "overwrite": {
+			return action.newSequence;
 		}
 	}
 };

@@ -8,14 +8,15 @@ import React, {
 	useRef,
 	useState,
 } from "react";
-import Controls from "./Controls";
-import Chords from "./Chords";
-import { Note, parseNote, range } from "../Music/Notes";
 import * as Tone from "tone";
-import { Chord } from "../Music/Chords";
 import chordSequenceReducer, {
 	ChordSequenceAction,
 } from "../ChordSequenceReducer";
+import { Chord } from "../Music/Chords";
+import { tryParseLink } from "../Music/LinkParser";
+import { Note, parseNote, range } from "../Music/Notes";
+import Chords from "./Chords";
+import Controls from "./Controls";
 
 const synth = new Tone.PolySynth(Tone.Synth, { volume: -15 }).toDestination();
 
@@ -43,12 +44,11 @@ export const ChordsContext = createContext<
 export default function App(): React.ReactElement {
 	const toneSeq = useRef<Tone.Sequence<number>>();
 
-	const [controls, setControls] = useState(() => ({
+	const [controls, setControls] = useState<ControlValues>(() => ({
 		tempo: 120,
 		key: parseNote("C4")!,
 		playing: false,
 	}));
-
 
 	const [activeChordIndex, setActiveChordIndex] = useState(-1);
 
@@ -61,11 +61,32 @@ export default function App(): React.ReactElement {
 				.map(() => new Chord())
 	);
 
+	const [loaded, setLoaded] = useState(false);
+	useEffect(() => {
+		const sequence = new URLSearchParams(window.location.search).get(
+			"sequence"
+		);
+		if (sequence) {
+			const parsedLink = tryParseLink(sequence);
+			if (parsedLink) {
+				dispatchSequence({
+					kind: "overwrite",
+					newSequence: parsedLink.sequence,
+				});
+				setControls({
+					key: parsedLink.key,
+					tempo: parsedLink.tempo,
+					playing: false,
+				});
+			}
+		}
+		setLoaded(true);
+	}, []);
+
 	useEffect(() => {
 		if (!controls.playing) return;
 
 		Tone.Transport.bpm.value = controls.tempo;
-
 
 		const seq = new Tone.Sequence(
 			(time, chordIndex) => {
@@ -104,9 +125,13 @@ export default function App(): React.ReactElement {
 		<ControlsContext.Provider value={[controls, setControls]}>
 			<ChordsContext.Provider value={[chordSequence, dispatchSequence]}>
 				<Box width="100%" pt={3}>
-					<Controls togglePlay={togglePlay}/>
-					<br />
-					<Chords activeChordIndex={activeChordIndex} />
+					{loaded && (
+						<>
+							<Controls togglePlay={togglePlay} />
+							<br />
+							<Chords activeChordIndex={activeChordIndex} />
+						</>
+					)}
 				</Box>
 			</ChordsContext.Provider>
 		</ControlsContext.Provider>
