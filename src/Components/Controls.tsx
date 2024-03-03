@@ -60,8 +60,11 @@ export const Controls = React.memo(
 
 		const createShareLink = useCallback(() => {
 			const link = encodeLink(controls.tempo, controls.key, chordSequence);
-			const url = `${window.location.host}${window.location.pathname}?sequence=${link}`;
+			const url = `${window.location.protocol}//${window.location.host}${window.location.pathname}?sequence=${link}`;
+			
 			navigator.clipboard.writeText(url);
+			window.history.pushState("", "", url)
+			
 			setShowLinkAlert(true);
 		}, [chordSequence, controls]);
 		const [showLinkAlert, setShowLinkAlert] = useState(false);
