@@ -68,7 +68,7 @@ export default function App(): React.ReactElement {
 				return;
 			}
 			const index = keyboardKeys.indexOf(event.key.toUpperCase());
-			if (index === -1 || index > chordSequence.length) {
+			if (index === -1 || index > (chordSequence.length - 1)) {
 				return;
 			}
 			const chord = chordSequence[index];
