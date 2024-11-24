@@ -19,16 +19,19 @@ export class Chord {
 	mode: Mode;
 	id: string;
 	extensions: Extensions;
+	length: number;
 
 	constructor(
 		base: Note = parseNote("C4")!,
 		mode: Mode = Mode.Major,
-		extensions: Extensions = new Extensions()
+		extensions: Extensions = new Extensions(),
+		length: number = 1
 	) {
 		this.base = base;
 		this.mode = mode;
 		this.extensions = extensions;
 		this.id = nanoid();
+		this.length = length;
 	}
 
 	public getArray(): string[] {

@@ -1,5 +1,6 @@
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
+import { TextField } from "@mui/material";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import Grid from "@mui/material/Grid";
@@ -17,7 +18,17 @@ const useStyles = makeStyles({
 	active: {
 		background: colors.blueGrey[100],
 	},
+	keyIcon: {
+		width: "2em",
+		height: "2em",
+		marginTop: "5px",
+		margin: "auto",
+		background: colors.grey[300],
+		cursor: "pointer",
+	},
 });
+
+export const keyboardKeys = "QWERTYUIOPASDFGHJKL";
 
 const ChordPiece = function (props: {
 	baseKey: Note;
@@ -27,17 +38,22 @@ const ChordPiece = function (props: {
 	active: boolean;
 }) {
 	const [mode, setMode] = useState(props.chord.mode);
-	const [relativeNote, setRelativeNote] = useState(() => props.chord.base.getRelativeNumber(props.baseKey));
+	const [relativeNote, setRelativeNote] = useState(() =>
+		props.chord.base.getRelativeNumber(props.baseKey)
+	);
 
 	const [seventh, setSeventh] = useState(props.chord.extensions.seventh);
 	const [ninth, setNinth] = useState(props.chord.extensions.ninth);
 	const [eleventh, setEleventh] = useState(props.chord.extensions.eleventh);
+
+	const [length, setLength] = useState(1);
 
 	const { onChordChange, baseKey } = props;
 	React.useEffect(() => {
 		const note = baseKey.offset(relativeNote);
 		const chord = new Chord(note, mode, { seventh, ninth, eleventh });
 		chord.id = props.chord.id;
+		chord.length = length;
 		onChordChange(chord);
 	}, [
 		mode,
@@ -48,6 +64,7 @@ const ChordPiece = function (props: {
 		eleventh,
 		onChordChange,
 		props.chord.id,
+		length,
 	]);
 
 	const classes = useStyles();
@@ -58,6 +75,7 @@ const ChordPiece = function (props: {
 		setNodeRef,
 		transform,
 		transition,
+		index,
 		isDragging,
 	} = useSortable({ id: props.chord.id });
 
@@ -73,23 +91,47 @@ const ChordPiece = function (props: {
 
 	return (
 		<div ref={setNodeRef} style={style}>
-			<Box pt={1} mr={1} mt={0.5}>
+			<Box pt={1} mr={1} mt={0.5} width={140 * length}>
 				<Paper className={props.active ? classes.active : ""}>
 					<Grid
 						container
 						item
 						direction="column"
-						alignItems="stretch"
+						alignItems="flex-start"
 						justifyContent="space-around"
 						spacing={2}
+						width={140}
 					>
-						<Button
-							style={{ width: "40px", height: "30px", alignSelf: "flex-end" }}
-							onClick={() => props.delete(props.chord)}
-						>
-							X
-						</Button>
-						<Notes baseKey={baseKey} offset={relativeNote} onChange={setRelativeNote}></Notes>
+						<Grid container item direction="row">
+							<Grid item xs={6} pl={1}>
+								<TextField
+									type="number"
+									label="Length"
+									style={{ width: 40 }}
+									defaultValue="1"
+									inputProps={{ min: 1 }}
+									onChange={(ev) => setLength(parseInt(ev.target.value))}
+									variant="standard"
+								/>
+							</Grid>
+							<Grid item xs={1}>
+								<Button
+									style={{
+										width: "40px",
+										height: "30px",
+										alignSelf: "flex-end",
+									}}
+									onClick={() => props.delete(props.chord)}
+								>
+									X
+								</Button>
+							</Grid>
+						</Grid>
+						<Notes
+							baseKey={baseKey}
+							offset={relativeNote}
+							onChange={setRelativeNote}
+						></Notes>
 						<Modes onChange={setMode} currentMode={mode}></Modes>
 						<ChordExtensions
 							seventh={seventh}
@@ -110,6 +152,13 @@ const ChordPiece = function (props: {
 						|||
 					</Box>
 				</Paper>
+				{index < keyboardKeys.length && (
+					<Paper className={classes.keyIcon}>
+						<Box m="auto" width="min-content">
+							{keyboardKeys[index]}
+						</Box>
+					</Paper>
+				)}
 			</Box>
 		</div>
 	);

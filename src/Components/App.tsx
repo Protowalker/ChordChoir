@@ -14,9 +14,10 @@ import chordSequenceReducer, {
 } from "../ChordSequenceReducer";
 import { Chord } from "../Music/Chords";
 import { tryParseLink } from "../Music/LinkParser";
-import { Note, parseNote, range } from "../Music/Notes";
+import { Note, parseNote } from "../Music/Notes";
 import Chords from "./Chords";
 import Controls from "./Controls";
+import { keyboardKeys } from "./Chord/ChordPiece";
 
 const synth = new Tone.PolySynth(Tone.Synth, { volume: -15 }).toDestination();
 
@@ -42,7 +43,7 @@ export const ChordsContext = createContext<
 >([[], () => {}]);
 
 export default function App(): React.ReactElement {
-	const toneSeq = useRef<Tone.Sequence<number>>();
+	const toneSeq = useRef<Tone.Part<readonly [number, number]>>();
 
 	const [controls, setControls] = useState<ControlValues>(() => ({
 		tempo: 120,
@@ -60,6 +61,35 @@ export default function App(): React.ReactElement {
 				.fill(0)
 				.map(() => new Chord())
 	);
+
+	useEffect(() => {
+		const listener = (event: KeyboardEvent, type: "start" | "end") => {
+			if (event.repeat) {
+				return;
+			}
+			const index = keyboardKeys.indexOf(event.key.toUpperCase());
+			if (index === -1 || index > chordSequence.length) {
+				return;
+			}
+			const chord = chordSequence[index];
+			if (type === "start") {
+				synth.triggerAttack(chord.getArray());
+			} else {
+				synth.triggerRelease(chord.getArray());
+			}
+		};
+		
+		const listenerStart = (ev: KeyboardEvent) => listener(ev, "start");
+		document.addEventListener("keydown", listenerStart);
+
+		const listenerEnd = (ev: KeyboardEvent) => listener(ev, "end");
+		document.addEventListener("keyup", listenerEnd);
+
+		return () => {
+			document.removeEventListener("keydown", listenerStart);
+			document.removeEventListener("keyup", listenerEnd);
+		};
+	}, [chordSequence, controls.tempo]);
 
 	const [loaded, setLoaded] = useState(false);
 	useEffect(() => {
@@ -87,20 +117,32 @@ export default function App(): React.ReactElement {
 		if (!controls.playing) return;
 
 		Tone.Transport.bpm.value = controls.tempo;
+		const beatLength = 60 / controls.tempo;
 
-		const seq = new Tone.Sequence(
-			(time, chordIndex) => {
-				setActiveChordIndex(chordIndex);
-				synth.triggerAttackRelease(
-					chordSequence[chordIndex].getArray(),
-					"8n",
-					time
-				);
-				// subdivisions are given as subarrays
-			},
-			range(0, chordSequence.length),
-			"4n"
-		).start(0);
+		const chordsWithTiming = chordSequence.reduce(
+			(acc, curr, currIndex) => ({
+				cursor: acc.cursor + curr.length,
+				values: [...acc.values, { chordIndex: currIndex, cursor: acc.cursor }],
+			}),
+			{ cursor: 0, values: [] as { chordIndex: number; cursor: number }[] }
+		);
+
+		const chordsWithAdjustedTiming = chordsWithTiming.values.map(
+			(chord) => [chord.cursor * beatLength, chord.chordIndex] as const
+		);
+
+		const seq = new Tone.Part((time, chordIndex) => {
+			const chord = chordSequence[chordIndex];
+			setActiveChordIndex(chordIndex);
+			synth.triggerAttackRelease(
+				chord.getArray(),
+				`${chord.length * beatLength - 0.1}`,
+				time
+			);
+		}, chordsWithAdjustedTiming).start(0);
+		seq.loop = true;
+		seq.loopEnd = chordsWithTiming.cursor * beatLength;
+
 		toneSeq.current = seq;
 
 		return () => {
