@@ -53,7 +53,7 @@ const chordSequenceReducer = (
 	switch (action.kind) {
 		case "add": {
 			let newState = oldState.slice();
-			if (action.index === undefined) action.index = -1;
+			if (action.index === undefined) action.index = newState.length;
 			newState.splice(action.index, 0, action.newChord);
 			return newState;
 		}
