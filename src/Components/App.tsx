@@ -52,7 +52,8 @@ export default function App(): React.ReactElement {
 	}));
 
 	const [activeChordIndex, setActiveChordIndex] = useState(-1);
-
+	// Don't allow playing the same chord overtop itself
+	const [activeChords, setActiveChords] = useState<Chord[]>([]);
 	const [chordSequence, dispatchSequence] = useReducer(
 		chordSequenceReducer,
 		null,
@@ -64,7 +65,7 @@ export default function App(): React.ReactElement {
 
 	useEffect(() => {
 		const listener = (event: KeyboardEvent, type: "start" | "end") => {
-			if (event.repeat) {
+			if (event.repeat || controls.playing) {
 				return;
 			}
 			const index = keyboardKeys.indexOf(event.key.toUpperCase());
@@ -72,10 +73,17 @@ export default function App(): React.ReactElement {
 				return;
 			}
 			const chord = chordSequence[index];
-			if (type === "start") {
+			if (type === "start" && !activeChords.includes(chord)) {
 				synth.triggerAttack(chord.getArray());
-			} else {
+				setActiveChords([...activeChords, chord]);
+				setActiveChordIndex(index);
+			} else if(type === 'end' && activeChords.includes(chord)) {
 				synth.triggerRelease(chord.getArray());
+				const filteredActiveChords = activeChords.filter(c => c !== chord);
+				setActiveChords(filteredActiveChords);
+				if(filteredActiveChords.length === 0) {
+					setActiveChordIndex(-1);
+				}
 			}
 		};
 		
@@ -89,7 +97,7 @@ export default function App(): React.ReactElement {
 			document.removeEventListener("keydown", listenerStart);
 			document.removeEventListener("keyup", listenerEnd);
 		};
-	}, [chordSequence, controls.tempo]);
+	}, [activeChords, chordSequence, controls.playing, controls.tempo]);
 
 	const [loaded, setLoaded] = useState(false);
 	useEffect(() => {
